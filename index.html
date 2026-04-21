@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPK Tumpangsari — AHP</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+
+/* ── BASE ── */
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: #fff;
+  color: #000;
+  line-height: 1.5;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  border-bottom: 3px solid #000;
+  padding: 11px 24px;
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+}
+.topbar-id {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+.topbar-sub {
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #555;
+}
+.topbar-ver {
+  margin-left: auto;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  border: 1px solid #000;
+  padding: 2px 7px;
+}
+
+/* ── MAIN LAYOUT ── */
+.main {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 20px 24px 60px;
+}
+
+/* ── PANEL ── */
+.panel {
+  border: 2px solid #000;
+  margin-bottom: 18px;
+}
+.panel-head {
+  background: #000;
+  color: #fff;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  user-select: none;
+}
+.panel-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  opacity: 0.5;
+}
+.panel-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+}
+.panel-body { padding: 16px; }
+
+/* ── BUTTONS ── */
+button {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 2px solid #000;
+  padding: 5px 14px;
+  background: #000;
+  color: #fff;
+  line-height: 1.4;
+  outline: none;
+  transition: background .1s, color .1s;
+}
+button:hover { background: #fff; color: #000; }
+button.ghost {
+  background: #fff;
+  color: #000;
+}
+button.ghost:hover { background: #000; color: #fff; }
+button:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+
+/* ── INPUTS ── */
+input[type="number"],
+input[type="text"],
+select {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  border: 2px solid #000;
+  padding: 4px 8px;
+  background: #fff;
+  color: #000;
+  border-radius: 0;
+  outline: none;
+}
+input:focus, select:focus { outline: 2px solid #555; outline-offset: 2px; }
+input[type="number"] {
+  width: 68px;
+  -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+select {
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpolygon points='0,0 8,0 4,5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 26px;
+}
+input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: #000;
+  flex-shrink: 0;
+}
+
+/* ── TABLE ── */
+table { width: 100%; border-collapse: collapse; }
+th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: #000;
+  color: #fff;
+  padding: 6px 10px;
+  border: 1px solid #000;
+  text-align: left;
+  white-space: nowrap;
+}
+td {
+  padding: 5px 10px;
+  border: 1px solid #000;
+  vertical-align: middle;
+  font-size: 13px;
+}
+tbody tr:nth-child(even) td { background: #f9f9f9; }
+.tbl-wrap { overflow-x: auto; }
+
+/* ── TAG ── */
+.tag {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  border: 1px solid currentColor;
+  padding: 1px 6px;
+}
+
+/* ── EXPERT COLUMNS ── */
+.expert-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.expert-col { border: 2px solid #000; }
+.expert-col-head {
+  background: #000;
+  color: #fff;
+  padding: 5px 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+}
+.expert-col-body { padding: 12px; }
+
+/* ── TABS ── */
+.tab-bar {
+  display: flex;
+  border-bottom: 2px solid #000;
+  margin-bottom: 16px;
+}
+.tab-btn {
+  padding: 5px 18px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  background: #fff;
+  color: #000;
+  border: none;
+  border-right: 1px solid #000;
+  letter-spacing: 1px;
+}
+.tab-btn:last-child { border-right: none; }
+.tab-btn:hover:not(.active) { background: #f0f0f0; }
+.tab-btn.active { background: #000; color: #fff; }
+
+/* ── STATUS BAR ── */
+.status-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  padding: 7px 12px;
+  border: 1px solid #000;
+  background: #f8f8f8;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+}
+
+/* ── CR BOX ── */
+.cr-box {
+  margin-top: 8px;
+  padding: 6px 10px;
+  border: 1px solid #000;
+  border-left-width: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  background: #f4f4f4;
+}
+
+/* ── BOBOT CARDS ── */
+.bobot-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+.bobot-card {
+  border: 2px solid #000;
+  padding: 8px 16px;
+  min-width: 88px;
+  text-align: center;
+}
+.bobot-card-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  display: block;
+  margin-bottom: 3px;
+}
+.bobot-card-val {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+/* ── RANKING ── */
+.rank-list { list-style: none; }
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 14px;
+  border: 1px solid #000;
+  margin-bottom: 3px;
+}
+.rank-item.first { background: #000; color: #fff; border-width: 2px; }
+.rank-item.first .tag { border-color: #fff; }
+.rank-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 22px;
+  font-weight: 600;
+  min-width: 32px;
+  line-height: 1;
+}
+.rank-name { flex: 1; font-size: 13px; font-weight: 500; }
+.rank-score {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ── DETAIL BOX ── */
+.detail-box {
+  margin-top: 14px;
+  border: 1px dashed #000;
+  padding: 14px;
+}
+.detail-box h3 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #000;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+
+/* ── UTILS ── */
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.col { display: flex; flex-direction: column; gap: 8px; }
+.mt8  { margin-top: 8px; }
+.mt12 { margin-top: 12px; }
+.mt16 { margin-top: 16px; }
+.mono { font-family: 'IBM Plex Mono', monospace; }
+.note { font-size: 11px; color: #666; font-style: italic; }
+.divider { border: none; border-top: 1px solid #ddd; margin: 10px 0; }
+.txt-center { text-align: center; }
+.txt-right { text-align: right; }
+.bold { font-weight: 700; }
+.empty-notice {
+  padding: 14px 12px;
+  border: 1px dashed #000;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: #555;
+}
+
+/* ── PRINT ── */
+@media print {
+  .no-print { display: none !important; }
+  .topbar { position: static; }
+  .panel { break-inside: avoid; }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+  .expert-grid { grid-template-columns: 1fr; }
+  .main { padding: 10px 12px 40px; }
+  .topbar { flex-wrap: wrap; gap: 6px; padding: 10px 14px; }
+  .bobot-card { min-width: 70px; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+  <span class="topbar-id">SPK // AHP</span>
+  <span class="topbar-sub">Pemilihan Kombinasi Tanaman Tumpangsari</span>
+  <span class="topbar-ver">v1.0</span>
+</div>
+
+<div class="main">
+
+  <!-- ════════════════════════════════════════════
+       PANEL 1 — KRITERIA
+  ════════════════════════════════════════════ -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-num">01</span>
+      <span class="panel-title">Kriteria Agronomis</span>
+    </div>
+    <div class="panel-body">
+      <div class="col">
+        <div
+          v-for="k in kriteria"
+          :key="k.kode"
+          style="display:flex; align-items:center; gap:14px; padding:8px 0; border-bottom:1px solid #ececec;">
+          <input type="checkbox" checked disabled>
+          <span class="tag">{{ k.kode }}</span>
+          <span style="flex:1; font-size:13px;">{{ k.nama }}</span>
+          <label style="display:flex; align-items:center; gap:6px; font-size:11px; color:#555;">
+            Bobot sementara:
+            <input type="number" v-model.number="k.bobotSementara" min="0" max="1" step="0.01">
+          </label>
+        </div>
+      </div>
+      <div class="row mt16 no-print">
+        <button @click="simpanKriteria">Simpan Kriteria</button>
+        <button class="ghost" @click="resetKriteria">Reset</button>
+        <span v-if="kriteriaSavedFlash" class="mono" style="font-size:12px;">✓ Tersimpan</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       PANEL 2 — ALTERNATIF
+  ════════════════════════════════════════════ -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-num">02</span>
+      <span class="panel-title">Alternatif Kombinasi Tanaman</span>
+    </div>
+    <div class="panel-body">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:60px">Kode</th>
+              <th>Nama Kombinasi</th>
+              <th style="width:130px" class="txt-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(alt, idx) in alternatif" :key="alt.kode">
+              <td class="mono" style="font-size:12px;">{{ alt.kode }}</td>
+              <td style="font-size:13px;">{{ alt.nama }}</td>
+              <td>
+                <div class="row" style="justify-content:center;">
+                  <button class="ghost" style="padding:3px 10px; font-size:10px;" @click="editAlternatif(idx)">Edit</button>
+                  <button class="ghost" style="padding:3px 10px; font-size:10px;" @click="hapusAlternatif(idx)" :disabled="alternatif.length <= 2">Hapus</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="row mt12 no-print">
+        <button @click="tambahAlternatif" :disabled="alternatif.length >= 7">Tambah Alternatif</button>
+        <span class="note">Maks. 7 alternatif &nbsp;·&nbsp; Sumber: BPS / Dinas Pertanian</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       PANEL 3 — PERBANDINGAN KRITERIA 3 PAKAR
+  ════════════════════════════════════════════ -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-num">03</span>
+      <span class="panel-title">Perbandingan Kriteria — 3 Pakar</span>
+    </div>
+    <div class="panel-body">
+
+      <div class="expert-grid">
+        <div v-for="(pakar, pi) in pakarData" :key="pi" class="expert-col">
+          <div class="expert-col-head">Pakar {{ pi + 1 }}</div>
+          <div class="expert-col-body">
+            <table>
+              <thead>
+                <tr>
+                  <th style="font-size:9px; padding:4px 6px;">Pasangan</th>
+                  <th style="font-size:9px; padding:4px 6px;">Nilai Baris:Kolom</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(p, ci) in pasanganKriteria" :key="ci">
+                  <td style="font-size:11px; padding:4px 6px;" class="mono">{{ p.label }}</td>
+                  <td style="padding:3px 5px;">
+                    <select
+                      v-model.number="pakar.matrix[p.i][p.j]"
+                      @change="updateReciprocal(pi, p.i, p.j)"
+                      style="width:100%; font-size:11px; padding:3px 5px;">
+                      <option v-for="s in skala" :key="s.str" :value="s.val">{{ s.label }}</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="row mt8 no-print">
+              <button style="font-size:10px; padding:4px 10px;" @click="hitungCRPakar(pi)">Hitung CR</button>
+              <button class="ghost" style="font-size:10px; padding:4px 10px;" @click="simpanPakar(pi)">Simpan</button>
+            </div>
+            <div v-if="pakar.cr !== null" class="cr-box">
+              <span>CR = <strong>{{ pakar.cr.toFixed(4) }}</strong></span>
+              &nbsp;—&nbsp;
+              <span>{{ pakar.cr < 0.1 ? '✓ Konsisten' : '✗ Tidak Konsisten' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status bar & agregasi -->
+      <div class="status-bar mt16">
+        <span v-for="(pakar, pi) in pakarData" :key="pi">
+          Pakar {{ pi + 1 }}: {{ pakar.saved ? '✓ Tersimpan' : '○ Belum disimpan' }}
+        </span>
+      </div>
+      <div class="row mt8 no-print">
+        <button @click="agregatGeometricMean">Agregasi Geometric Mean</button>
+        <span v-if="agregatDone" class="mono" style="font-size:12px;">✓ Agregasi selesai</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       PANEL 4 — PERBANDINGAN ALTERNATIF PER KRITERIA
+  ════════════════════════════════════════════ -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-num">04</span>
+      <span class="panel-title">Perbandingan Alternatif per Kriteria</span>
+    </div>
+    <div class="panel-body">
+
+      <div class="tab-bar">
+        <button
+          v-for="(k, ki) in kriteria"
+          :key="k.kode"
+          class="tab-btn"
+          :class="{ active: activeTab === ki }"
+          @click="activeTab = ki">
+          {{ k.kode }}{{ altSaved[ki] ? ' ✓' : '' }}
+        </button>
+      </div>
+
+      <div v-if="activeTab !== null">
+        <p style="font-size:12px; margin-bottom:12px;">
+          Bandingkan setiap pasangan alternatif terhadap kriteria
+          <strong>{{ kriteria[activeTab].kode }} — {{ kriteria[activeTab].nama }}</strong>
+        </p>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:110px">Pasangan</th>
+                <th>Nilai Perbandingan (baris lebih baik dari kolom)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(p, ci) in pasanganAlt" :key="ci">
+                <td class="mono" style="font-size:11px; white-space:nowrap;">{{ p.label }}</td>
+                <td>
+                  <select
+                    v-model.number="altMatrix[activeTab][p.i][p.j]"
+                    @change="updateAltReciprocal(activeTab, p.i, p.j)"
+                    style="font-size:11px; padding:3px 7px; width:260px;">
+                    <option v-for="s in skala" :key="s.str" :value="s.val">{{ s.label }}</option>
+                  </select>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="row mt12 no-print">
+          <button @click="simpanAltMatrix(activeTab)">
+            Simpan Perbandingan {{ kriteria[activeTab].kode }}
+          </button>
+          <span v-if="altSaved[activeTab]" class="mono" style="font-size:12px;">✓ Tersimpan</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       PANEL 5 — HASIL AGREGASI & BOBOT
+  ════════════════════════════════════════════ -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-num">05</span>
+      <span class="panel-title">Hasil Agregasi &amp; Bobot</span>
+    </div>
+    <div class="panel-body">
+
+      <div class="row no-print">
+        <button @click="hitungSemua">Hitung Ulang</button>
+        <button class="ghost" @click="showDetail = !showDetail">
+          {{ showDetail ? 'Sembunyikan' : 'Lihat' }} Detail Perhitungan
+        </button>
+      </div>
+
+      <!-- Hasil ada -->
+      <div v-if="hasil" class="mt16">
+
+        <!-- Bobot kriteria -->
+        <div style="border:2px solid #000; padding:14px; margin-bottom:16px;">
+          <div class="mono" style="font-size:10px; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;">
+            Bobot Kriteria Agregat
+          </div>
+          <div class="bobot-row">
+            <div v-for="(k, ki) in kriteria" :key="k.kode" class="bobot-card">
+              <span class="bobot-card-label">{{ k.kode }}</span>
+              <span class="bobot-card-val">{{ hasil.bobotKrit[ki].toFixed(4) }}</span>
+            </div>
+          </div>
+          <div class="mono" style="font-size:12px; margin-top:8px;">
+            CR Agregat = <strong>{{ hasil.crAgregat.toFixed(4) }}</strong>
+            &nbsp;—&nbsp;
+            <strong>{{ hasil.crAgregat < 0.1 ? '✓ Konsisten' : '✗ Tidak Konsisten' }}</strong>
+          </div>
+        </div>
+
+        <!-- Tabel bobot alternatif -->
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Alternatif</th>
+                <th v-for="k in kriteria" :key="k.kode" class="txt-center">{{ k.kode }}</th>
+                <th class="txt-center">Bobot Global</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(alt, ai) in alternatif" :key="alt.kode">
+                <td>
+                  <span class="tag" style="margin-right:6px;">{{ alt.kode }}</span>
+                  <span style="font-size:12px;">{{ alt.nama }}</span>
+                </td>
+                <td v-for="(k, ki) in kriteria" :key="k.kode" class="mono txt-center" style="font-size:12px;">
+                  {{ hasil.bobotAlt[ki] ? hasil.bobotAlt[ki][ai].toFixed(4) : '—' }}
+                </td>
+                <td class="mono txt-center bold" style="font-size:13px;">
+                  {{ hasil.bobotGlobal[ai].toFixed(4) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Detail perhitungan -->
+        <div v-if="showDetail" class="detail-box">
+          <h3>Detail — Matriks Agregat Kriteria (Geometric Mean)</h3>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th v-for="k in kriteria" :key="k.kode" class="txt-center">{{ k.kode }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(k, ki) in kriteria" :key="k.kode">
+                  <th style="text-align:left;">{{ k.kode }}</th>
+                  <td v-for="(k2, ki2) in kriteria" :key="k2.kode" class="mono txt-center" style="font-size:12px;">
+                    {{ hasil.matAgregat[ki][ki2].toFixed(4) }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="margin-top:14px;">
+            <h3>Matriks Normalisasi Kriteria</h3>
+            <div class="tbl-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th v-for="k in kriteria" :key="k.kode" class="txt-center">{{ k.kode }}</th>
+                    <th class="txt-center">Bobot (w)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(k, ki) in kriteria" :key="k.kode">
+                    <th style="text-align:left;">{{ k.kode }}</th>
+                    <td v-for="(k2, ki2) in kriteria" :key="k2.kode" class="mono txt-center" style="font-size:12px;">
+                      {{ hasil.normKrit[ki][ki2].toFixed(4) }}
+                    </td>
+                    <td class="mono txt-center bold" style="font-size:12px;">{{ hasil.bobotKrit[ki].toFixed(4) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="mono mt12" style="font-size:12px; line-height:2; border:1px solid #000; padding:10px; background:#f8f8f8;">
+            λmax &nbsp;&nbsp;= {{ hasil.lambdaMax.toFixed(6) }}<br>
+            CI &nbsp;&nbsp;&nbsp;&nbsp;= (λmax − n) / (n − 1) = {{ hasil.ci.toFixed(6) }}<br>
+            RI &nbsp;&nbsp;&nbsp;&nbsp;= 0.9000 &nbsp;(n = 4, Tabel Saaty)<br>
+            CR &nbsp;&nbsp;&nbsp;&nbsp;= CI / RI = {{ hasil.crAgregat.toFixed(6) }}
+            &nbsp;→&nbsp; {{ hasil.crAgregat < 0.1 ? '✓ KONSISTEN (CR < 0.1)' : '✗ TIDAK KONSISTEN (CR ≥ 0.1)' }}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Belum dihitung -->
+      <div v-else class="empty-notice mt16">
+        Klik "Hitung Ulang" untuk memproses semua data yang tersimpan.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       PANEL 6 — RANKING & REKOMENDASI
+  ════════════════════════════════════════════ -->
+  <div class="panel">
+    <div class="panel-head">
+      <span class="panel-num">06</span>
+      <span class="panel-title">Ranking &amp; Rekomendasi</span>
+    </div>
+    <div class="panel-body">
+
+      <div v-if="ranking.length > 0">
+        <ul class="rank-list">
+          <li
+            v-for="(item, idx) in ranking"
+            :key="item.kode"
+            class="rank-item"
+            :class="{ first: idx === 0 }">
+            <span class="rank-num">{{ idx + 1 }}.</span>
+            <span class="rank-name">{{ item.nama }}</span>
+            <span class="tag">{{ item.kode }}</span>
+            <span class="rank-score">{{ item.skor.toFixed(4) }}</span>
+          </li>
+        </ul>
+
+        <div style="margin-top:10px; padding:10px 14px; border:2px solid #000; background:#f8f8f8;">
+          <span style="font-size:12px; font-weight:600;">Rekomendasi Terbaik:</span>
+          <span style="font-size:13px; margin-left:8px;">{{ ranking[0].nama }}</span>
+          <span class="mono" style="font-size:12px; margin-left:8px;">
+            (bobot global = {{ ranking[0].skor.toFixed(4) }})
+          </span>
+        </div>
+      </div>
+
+      <div v-else class="empty-notice">
+        Lakukan perhitungan pada Panel 05 terlebih dahulu.
+      </div>
+
+      <div class="row mt16 no-print">
+        <button @click="cetakPDF">Cetak Rekomendasi (PDF)</button>
+        <button class="ghost" @click="eksporJSON">Ekspor Data Lengkap (JSON)</button>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ── VUE 3 CDN ── -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════════
+   AHP UTILITY FUNCTIONS
+══════════════════════════════════════════════════════════ */
+
+const RI = { 1:0, 2:0, 3:0.58, 4:0.90, 5:1.12, 6:1.24, 7:1.32, 8:1.41, 9:1.45 };
+
+/**
+ * Hitung bobot, λmax, CI, CR dari matriks perbandingan berpasangan (nxn).
+ * Metode: normalisasi kolom → rata-rata baris → eigenvector aproksimasi.
+ */
+function ahpHitung(matrix) {
+  const n = matrix.length;
+
+  // 1. Jumlah tiap kolom
+  const colSum = Array(n).fill(0);
+  for (let i = 0; i < n; i++)
+    for (let j = 0; j < n; j++)
+      colSum[j] += matrix[i][j];
+
+  // 2. Normalisasi: bagi setiap elemen dengan jumlah kolomnya
+  const norm = matrix.map((row, i) =>
+    row.map((val, j) => val / colSum[j])
+  );
+
+  // 3. Bobot = rata-rata baris dari matriks ternormalisasi
+  const bobot = norm.map(row => row.reduce((a, b) => a + b, 0) / n);
+
+  // 4. λmax = (1/n) × Σᵢ [ (Σⱼ aᵢⱼ × wⱼ) / wᵢ ]
+  let lambdaMax = 0;
+  for (let i = 0; i < n; i++) {
+    let awi = 0;
+    for (let j = 0; j < n; j++) awi += matrix[i][j] * bobot[j];
+    lambdaMax += awi / bobot[i];
+  }
+  lambdaMax /= n;
+
+  // 5. CI dan CR
+  const ci = n > 1 ? (lambdaMax - n) / (n - 1) : 0;
+  const ri = RI[n] ?? 1.49;
+  const cr = ri === 0 ? 0 : ci / ri;
+
+  return { bobot, lambdaMax, ci, cr, norm, colSum };
+}
+
+/**
+ * Geometric mean dari array nilai (digunakan untuk agregasi pakar).
+ */
+function geoMean(values) {
+  const product = values.reduce((acc, v) => acc * v, 1);
+  return Math.pow(product, 1 / values.length);
+}
+
+/**
+ * Buat matriks identitas nxn (semua pasangan = 1, diagonal = 1).
+ */
+function matriksIdentitas(n) {
+  return Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j) => 1)
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   DATA DEFAULT — MATRIKS PAKAR (konsisten, CR < 0.1)
+══════════════════════════════════════════════════════════ */
+
+function matriksPakarDefault(pi) {
+  // Tiga pakar dengan preferensi yang sedikit berbeda namun semua konsisten.
+  // Urutan dominan: C1 > C2 > C3 > C4
+  const set = [
+    // Pakar 1
+    [
+      [1,     3,     5,     7  ],
+      [1/3,   1,     3,     5  ],
+      [1/5,   1/3,   1,     3  ],
+      [1/7,   1/5,   1/3,   1  ]
+    ],
+    // Pakar 2
+    [
+      [1,     2,     4,     6  ],
+      [1/2,   1,     2,     4  ],
+      [1/4,   1/2,   1,     2  ],
+      [1/6,   1/4,   1/2,   1  ]
+    ],
+    // Pakar 3
+    [
+      [1,     3,     4,     5  ],
+      [1/3,   1,     3,     4  ],
+      [1/4,   1/3,   1,     3  ],
+      [1/5,   1/4,   1/3,   1  ]
+    ]
+  ];
+  return set[pi].map(row => [...row]);
+}
+
+/* ── Matriks alternatif default per kriteria ── */
+function matriksAltDefault(ki, n) {
+  // Siapkan nilai untuk 5 alternatif, potong/extend jika n berbeda.
+  const templates = [
+    // C1: Perbedaan tinggi → A1 (Jagung+KacangTanah) terbaik
+    [
+      [1,   3,   2,   4,   3 ],
+      [1/3, 1,   1/2, 2,   1 ],
+      [1/2, 2,   1,   3,   2 ],
+      [1/4, 1/2, 1/3, 1,   1/2],
+      [1/3, 1,   1/2, 2,   1 ]
+    ],
+    // C2: Perbedaan nutrisi → A5 (Jagung+Kedelai) terbaik
+    [
+      [1,   2,   3,   4,   1/2],
+      [1/2, 1,   2,   3,   1/3],
+      [1/3, 1/2, 1,   2,   1/4],
+      [1/4, 1/3, 1/2, 1,   1/5],
+      [2,   3,   4,   5,   1  ]
+    ],
+    // C3: Kesamaan air → A2 (Jagung+KacangHijau) terbaik
+    [
+      [1,   1/2, 2,   2,   1/2],
+      [2,   1,   3,   3,   1  ],
+      [1/2, 1/3, 1,   1,   1/3],
+      [1/2, 1/3, 1,   1,   1/3],
+      [2,   1,   3,   3,   1  ]
+    ],
+    // C4: Perbedaan hama → A4 (Sorghum+KacangTunggak) terbaik
+    [
+      [1,   2,   2,   1/2, 3  ],
+      [1/2, 1,   1,   1/3, 2  ],
+      [1/2, 1,   1,   1/3, 2  ],
+      [2,   3,   3,   1,   4  ],
+      [1/3, 1/2, 1/2, 1/4, 1  ]
+    ]
+  ];
+  const t = templates[ki];
+  const m = matriksIdentitas(n);
+  for (let i = 0; i < Math.min(n, 5); i++)
+    for (let j = 0; j < Math.min(n, 5); j++)
+      m[i][j] = t[i][j];
+  return m;
+}
+
+/* ══════════════════════════════════════════════════════════
+   VUE 3 APPLICATION
+══════════════════════════════════════════════════════════ */
+
+const { createApp } = Vue;
+
+createApp({
+  data() {
+    const nAlt = 5;
+
+    return {
+      /* ─ Panel 1 ─ */
+      kriteria: [
+        { kode:'C1', nama:'Perbedaan tinggi tanaman',          aktif:true, bobotSementara:0 },
+        { kode:'C2', nama:'Perbedaan kebutuhan nutrisi',       aktif:true, bobotSementara:0 },
+        { kode:'C3', nama:'Kesamaan kebutuhan air',            aktif:true, bobotSementara:0 },
+        { kode:'C4', nama:'Perbedaan jenis hama & penyakit',   aktif:true, bobotSementara:0 },
+      ],
+      kriteriaSavedFlash: false,
+
+      /* ─ Panel 2 ─ */
+      alternatif: [
+        { kode:'A1', nama:'Jagung + Kacang Tanah'    },
+        { kode:'A2', nama:'Jagung + Kacang Hijau'    },
+        { kode:'A3', nama:'Jagung + Ubi Kayu'        },
+        { kode:'A4', nama:'Sorghum + Kacang Tunggak' },
+        { kode:'A5', nama:'Jagung + Kedelai'         },
+      ],
+
+      /* ─ Panel 3 ─ */
+      pakarData: [0, 1, 2].map(pi => ({
+        matrix: matriksPakarDefault(pi),
+        cr:     null,
+        saved:  true
+      })),
+      matAgregat:  null,
+      agregatDone: false,
+
+      /* ─ Panel 4 ─ */
+      altMatrix: [0, 1, 2, 3].map(ki => matriksAltDefault(ki, nAlt)),
+      altSaved:  [true, true, true, true],
+      activeTab: 0,
+
+      /* ─ Panel 5 & 6 ─ */
+      hasil:      null,
+      showDetail: false,
+      ranking:    [],
+
+      /* ─ Skala Saaty 1/9 … 9 ─ */
+      skala: [
+        { val:1/9, str:'1/9', label:'1/9  — Mutlak kurang penting'   },
+        { val:1/8, str:'1/8', label:'1/8'                            },
+        { val:1/7, str:'1/7', label:'1/7  — Sangat kurang penting'   },
+        { val:1/6, str:'1/6', label:'1/6'                            },
+        { val:1/5, str:'1/5', label:'1/5  — Jelas kurang penting'    },
+        { val:1/4, str:'1/4', label:'1/4'                            },
+        { val:1/3, str:'1/3', label:'1/3  — Sedikit kurang penting'  },
+        { val:1/2, str:'1/2', label:'1/2'                            },
+        { val:1,   str:'1',   label:'1    — Sama penting'            },
+        { val:2,   str:'2',   label:'2'                              },
+        { val:3,   str:'3',   label:'3    — Sedikit lebih penting'   },
+        { val:4,   str:'4',   label:'4'                              },
+        { val:5,   str:'5',   label:'5    — Jelas lebih penting'     },
+        { val:6,   str:'6',   label:'6'                              },
+        { val:7,   str:'7',   label:'7    — Sangat lebih penting'    },
+        { val:8,   str:'8',   label:'8'                              },
+        { val:9,   str:'9',   label:'9    — Mutlak lebih penting'    },
+      ],
+
+      /* ─ Pasangan kriteria C1..C4 (i < j) ─ */
+      pasanganKriteria: [
+        { i:0, j:1, label:'C1 : C2' },
+        { i:0, j:2, label:'C1 : C3' },
+        { i:0, j:3, label:'C1 : C4' },
+        { i:1, j:2, label:'C2 : C3' },
+        { i:1, j:3, label:'C2 : C4' },
+        { i:2, j:3, label:'C3 : C4' },
+      ],
+    };
+  },
+
+  computed: {
+    /* Pasangan alternatif dinamis sesuai jumlah alternatif saat ini */
+    pasanganAlt() {
+      const n = this.alternatif.length;
+      const pairs = [];
+      for (let i = 0; i < n; i++)
+        for (let j = i + 1; j < n; j++)
+          pairs.push({
+            i, j,
+            label: `${this.alternatif[i].kode} : ${this.alternatif[j].kode}`
+          });
+      return pairs;
+    }
+  },
+
+  methods: {
+
+    /* ── PANEL 1 ── */
+    simpanKriteria() {
+      this.kriteriaSavedFlash = true;
+      setTimeout(() => { this.kriteriaSavedFlash = false; }, 2200);
+    },
+    resetKriteria() {
+      this.kriteria.forEach(k => { k.bobotSementara = 0; });
+      this.kriteriaSavedFlash = false;
+    },
+
+    /* ── PANEL 2 ── */
+    tambahAlternatif() {
+      if (this.alternatif.length >= 7) return;
+      const idx  = this.alternatif.length;
+      const kode = `A${idx + 1}`;
+      this.alternatif.push({ kode, nama: `Kombinasi Baru ${idx + 1}` });
+      // Perluas setiap altMatrix (tambah baris & kolom)
+      const n = this.alternatif.length;
+      for (let ki = 0; ki < 4; ki++) {
+        // tambah kolom ke baris yang ada
+        for (let i = 0; i < n - 1; i++) this.altMatrix[ki][i].push(1);
+        // tambah baris baru
+        this.altMatrix[ki].push(Array(n).fill(1));
+      }
+      this.altSaved = [false, false, false, false];
+    },
+    editAlternatif(idx) {
+      const nama = window.prompt('Nama kombinasi baru:', this.alternatif[idx].nama);
+      if (nama && nama.trim()) this.alternatif[idx].nama = nama.trim();
+    },
+    hapusAlternatif(idx) {
+      if (this.alternatif.length <= 2) return;
+      this.alternatif.splice(idx, 1);
+      // Rebuild kode A1..An
+      this.alternatif.forEach((a, i) => { a.kode = `A${i + 1}`; });
+      // Rebuild altMatrix dengan ukuran baru
+      const n = this.alternatif.length;
+      this.altMatrix = [0, 1, 2, 3].map(ki => matriksAltDefault(ki, n));
+      this.altSaved  = [false, false, false, false];
+    },
+
+    /* ── PANEL 3 ── */
+    updateReciprocal(pi, i, j) {
+      const v = this.pakarData[pi].matrix[i][j];
+      this.pakarData[pi].matrix[j][i] = 1 / v;
+    },
+    hitungCRPakar(pi) {
+      const res = ahpHitung(this.pakarData[pi].matrix);
+      this.pakarData[pi].cr = res.cr;
+    },
+    simpanPakar(pi) {
+      this.hitungCRPakar(pi);
+      this.pakarData[pi].saved = true;
+    },
+    agregatGeometricMean() {
+      const n = 4;
+      const m = Array.from({ length: n }, () => Array(n).fill(0));
+      for (let i = 0; i < n; i++)
+        for (let j = 0; j < n; j++) {
+          const vals = this.pakarData.map(p => p.matrix[i][j]);
+          m[i][j] = geoMean(vals);
+        }
+      this.matAgregat  = m;
+      this.agregatDone = true;
+    },
+
+    /* ── PANEL 4 ── */
+    updateAltReciprocal(ki, i, j) {
+      const v = this.altMatrix[ki][i][j];
+      this.altMatrix[ki][j][i] = 1 / v;
+    },
+    simpanAltMatrix(ki) {
+      this.altSaved[ki] = true;
+    },
+
+    /* ── PANEL 5 & 6 — HITUNG SEMUA ── */
+    hitungSemua() {
+      // Pastikan agregasi sudah ada
+      if (!this.matAgregat) this.agregatGeometricMean();
+
+      // 1. Bobot kriteria dari matriks agregat
+      const resKrit = ahpHitung(this.matAgregat);
+
+      // 2. Bobot alternatif per kriteria
+      const nAlt = this.alternatif.length;
+      const bobotAlt = [];
+      for (let ki = 0; ki < 4; ki++) {
+        const res = ahpHitung(this.altMatrix[ki]);
+        bobotAlt.push(res.bobot);
+      }
+
+      // 3. Bobot global = Σ (bobotKrit[ki] × bobotAlt[ki][ai])
+      const bobotGlobal = Array(nAlt).fill(0);
+      for (let ai = 0; ai < nAlt; ai++)
+        for (let ki = 0; ki < 4; ki++)
+          bobotGlobal[ai] += resKrit.bobot[ki] * bobotAlt[ki][ai];
+
+      this.hasil = {
+        bobotKrit:  resKrit.bobot,
+        lambdaMax:  resKrit.lambdaMax,
+        ci:         resKrit.ci,
+        crAgregat:  resKrit.cr,
+        normKrit:   resKrit.norm,
+        bobotAlt,
+        bobotGlobal,
+        matAgregat: this.matAgregat,
+      };
+
+      // 4. Ranking
+      const list = this.alternatif.map((alt, ai) => ({
+        ...alt,
+        skor: bobotGlobal[ai]
+      }));
+      list.sort((a, b) => b.skor - a.skor);
+      this.ranking = list;
+    },
+
+    /* ── PANEL 6 ── */
+    cetakPDF() {
+      window.print();
+    },
+    eksporJSON() {
+      const payload = {
+        timestamp:    new Date().toISOString(),
+        aplikasi:     'SPK Tumpangsari — AHP v1.0',
+        kriteria:     this.kriteria,
+        alternatif:   this.alternatif,
+        pakarMatrix:  this.pakarData.map(p => ({ matrix: p.matrix, cr: p.cr })),
+        matAgregat:   this.matAgregat,
+        altMatrix:    this.altMatrix,
+        hasil:        this.hasil,
+        ranking:      this.ranking,
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `spk-ahp-tumpangsari-${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  },
+
+  mounted() {
+    // Jalankan agregasi & hitung otomatis saat pertama load
+    this.agregatGeometricMean();
+    this.hitungSemua();
+  }
+
+}).mount('#app');
+</script>
+</body>
+</html>
